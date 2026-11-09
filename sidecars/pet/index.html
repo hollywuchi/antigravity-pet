@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>星空猫猫 · 电子宠物面板</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes petFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+    @keyframes heartRise {
+      0% { opacity: 1; transform: translateY(0) scale(0.6); }
+      100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+    }
+    .pet-floating { animation: petFloat 3.8s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] p-4 select-none">
+  <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 shadow-lg max-w-md mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-[var(--border)] mb-4">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🐱</span>
+        <h1 class="text-base font-bold text-[var(--foreground)]">星空猫猫 · 专属电子宠物</h1>
+      </div>
+      <span class="text-xs px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-400 font-semibold border border-pink-500/30">
+        已内嵌工作区
+      </span>
+    </div>
+
+    <!-- Pet Showcase Box -->
+    <div class="relative bg-gradient-to-b from-purple-950/40 via-purple-900/20 to-transparent border border-purple-500/20 rounded-xl p-4 flex flex-col items-center justify-center overflow-hidden mb-4">
+      <div class="absolute top-2 left-3 text-xs text-purple-300 font-medium flex items-center gap-1">
+        <span>✨</span><span id="affection-label">亲密度 ♥ 10</span>
+      </div>
+      
+      <!-- Pet Display Image -->
+      <div class="relative cursor-pointer group py-2" id="pet-display-wrapper">
+        <img id="side-pet-img" src="../../assets/pet_front.png" class="h-44 object-contain pet-floating transition-transform duration-200 group-hover:scale-105" alt="Pet" />
+        <div id="heart-container" class="absolute inset-0 pointer-events-none"></div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-2 mt-3 w-full">
+        <button id="btn-pet-head" class="flex-1 py-1.5 px-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:opacity-90 text-white rounded-lg text-xs font-semibold shadow transition-all">
+          摸摸头 🐾
+        </button>
+        <button id="btn-listen-talk" class="flex-1 py-1.5 px-3 bg-[var(--secondary)] hover:bg-[var(--secondary)]/80 text-[var(--foreground)] rounded-lg text-xs font-medium transition-all">
+          听猫猫说话 💬
+        </button>
+      </div>
+
+      <!-- Dialogue Box -->
+      <div id="side-dialogue" class="mt-3 w-full bg-black/40 border border-purple-400/30 rounded-lg p-2.5 text-xs text-purple-200 text-center transition-all">
+        “今天主人也超级棒！遇到困难有本喵陪着你喵~”
+      </div>
+    </div>
+
+    <!-- Live Telemetry Stats -->
+    <div class="space-y-2 mb-4 bg-black/20 p-3 rounded-xl border border-[var(--border)]">
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-[var(--muted-foreground)]">当前活跃模型</span>
+        <span class="font-semibold text-sky-400">Gemini 3.8 Flash High</span>
+      </div>
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-[var(--muted-foreground)]">上下文总占用</span>
+        <span class="font-semibold text-[var(--foreground)]" id="tele-context">80.8K / 1,024K (7.7%)</span>
+      </div>
+      <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full" style="width: 8%;"></div>
+      </div>
+      <div class="flex justify-between items-center text-xs pt-1">
+        <span class="text-[var(--muted-foreground)]">整体缓存命中率</span>
+        <span class="font-semibold text-emerald-400" id="tele-cache">90.1% (极速缓存)</span>
+      </div>
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-[var(--muted-foreground)]">会话消耗 Tokens</span>
+        <span class="font-medium text-[var(--foreground)]" id="tele-tokens">398K 输入 · 3.64M 缓存 · 33K 输出</span>
+      </div>
+    </div>
+
+    <!-- Features Checklist -->
+    <div class="text-xs text-[var(--muted-foreground)] space-y-1">
+      <div class="flex items-center gap-1.5 text-purple-300">
+        <span>✓</span> <span>直接内嵌在主窗口对话框右上角，支持探头/坐姿自由切换</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-purple-300">
+        <span>✓</span> <span>左键宠物展示实时用量，再次点击弹出日常与玩梗语录</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-purple-300">
+        <span>✓</span> <span>右键弹出个性化控制面板，支持自定义 JSON 格式语录导入导出</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-purple-300">
+        <span>✓</span> <span>任务完成专属语音播报 + 本次会话用量与剩余配额弹窗</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let affection = 10;
+    const quotes = [
+      "代码写得这么快，该不会是AI写的吧？哦对，我就是AI~ 喵！",
+      "今天你摸鱼了吗？没摸？那快多摸摸我！",
+      "只要主人摸摸头，我的计算速度立刻提升 300% 喵！",
+      "今天的缓存命中率超高哦！省下来的 Token 够买好多小鱼干啦~",
+      "主人写代码的样子最专注了，本喵就在旁边静静陪着你~ ✨"
+    ];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playChime() {
+      const now = audioCtx.currentTime;
+      [1046.5, 1318.5, 1567.98, 2093.0].forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        gain.gain.setValueAtTime(0.15, now + idx * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + idx * 0.08 + 0.55);
+      });
+    }
+
+    function doPet() {
+      affection++;
+      document.getElementById('affection-label').textContent = '亲密度 ♥ ' + affection;
+      playChime();
+      const img = document.getElementById('side-pet-img');
+      img.src = '../../assets/pet_happy.png';
+      setTimeout(() => img.src = '../../assets/pet_front.png', 1500);
+
+      const box = document.getElementById('heart-container');
+      const h = document.createElement('div');
+      h.textContent = ['💖', '💕', '✨', '🐾'][Math.floor(Math.random() * 4)];
+      h.style.position = 'absolute';
+      h.style.left = (Math.random() * 80 + 30) + 'px';
+      h.style.bottom = '50px';
+      h.style.animation = 'heartRise 1s forwards';
+      box.appendChild(h);
+      setTimeout(() => h.remove(), 1000);
+
+      document.getElementById('side-dialogue').textContent = '“舒服喵~ 呼噜呼噜... 最喜欢主人摸摸啦！”';
+    }
+
+    document.getElementById('btn-pet-head').addEventListener('click', doPet);
+    document.getElementById('side-pet-img').addEventListener('click', doPet);
+
+    document.getElementById('btn-listen-talk').addEventListener('click', () => {
+      const q = quotes[Math.floor(Math.random() * quotes.length)];
+      document.getElementById('side-dialogue').textContent = '“' + q + '”';
+    });
+  </script>
+</body>
+</html>

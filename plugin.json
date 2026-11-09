@@ -1,0 +1,12 @@
+{
+  "name": "antigravity-pet",
+  "display_name": "星空猫猫 · 电子宠物",
+  "version": "1.0.0",
+  "description": "Antigravity专属星空猫娘电子宠物：直接内嵌在对话输入框上方，支持抚摸互动、左键查看模型与Token用量及日常玩梗、右键个性化设置与JSON语录导入导出、任务完成专属语音与剩余配额提醒。",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "查看电子宠物当前的Token消耗与缓存命中率",
+    "切换电子宠物为探头模式并摸摸它",
+    "导入新的日常与玩梗对话JSON语录"
+  ]
+}
